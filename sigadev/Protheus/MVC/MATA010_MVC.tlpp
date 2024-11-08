@@ -1,0 +1,74 @@
+#Include "Protheus.Ch"
+#Include "FWMVCDEF.CH"
+
+/*/{Protheus.doc} MTA010MVC
+  Grava��o em MVC Cadastro de Produto x Complemento x Indicador
+  @type  Fun��o
+  @author Michael Maximino de Castro
+  @since 14/06/2023
+  /*/
+User Function MTA010MVC()
+
+Local cCodSB1 := "PCVNRTX4090    " as character
+Local lOk := .F. as logical
+
+//Posiciono no registro que ser� feita a altera��o
+DbSelectArea("SB1")
+DbSetOrder(1)
+DbSeek(FWxFilial("SB1") + cCodSB1)
+
+//Pegando o modelo de dados, setando a opera��o de inclus�o
+oModel := FWLoadModel("MATA010")
+oModel:SetOperation(MODEL_OPERATION_UPDATE)
+oModel:Activate()
+
+//Pegando o model e setando os campos
+oSB1Mod := oModel:GetModel("SB1MASTER")
+oSB1Mod:SetValue("B1_DESC"   , "PLACA DE VIDEO NVIDIA RTX 4090"     )
+oSB1Mod:SetValue("B1_TIPO"   , "PA"     )
+oSB1Mod:SetValue("B1_UM"     , "CX"       )
+oSB1Mod:SetValue("B1_LOCPAD" , "019"   )
+
+//Setando o complemento do produto
+oSB5Mod := oModel:GetModel("SB5DETAIL")
+If oSB5Mod != Nil
+    oSB5Mod:SetValue("B5_CEME"   , "NVIDIA RTX 4090"     )
+EndIf
+
+//Setando o indicador de produto
+oSBZMod := oModel:GetModel("SBZDETAIL")
+If oSBZMod != Nil
+	oSBZMod:AddLine() //Adiciona uma nova linha na SBZ
+    oSBZMod:SetValue("BZ_FILIAL"   , FWxFilial("SBZ")     )
+    oSBZMod:SetValue("BZ_LOCPAD"   , "001"     )
+EndIf
+
+//Se conseguir validar as informa��es, realiza o Commit
+lOk := oModel:VldData() .and. oModel:CommitData()
+
+//Se n�o deu certo a inclus�o, mostra a mensagem de erro
+If !lOk
+    //Busca o Erro do Modelo de Dados
+    aErro := oModel:GetErrorMessage()
+
+    //Monta o Texto que ser� mostrado na tela
+    cMessage := "Id do formul�rio de origem:"  + ' [' + cValToChar(aErro[MODEL_MSGERR_IDFORM]) + '], '
+    cMessage += "Id do campo de origem: "      + ' [' + cValToChar(aErro[MODEL_MSGERR_IDFIELD]) + '], '
+    cMessage += "Id do formul�rio de erro: "   + ' [' + cValToChar(aErro[MODEL_MSGERR_IDFORMERR]) + '], '
+    cMessage += "Id do campo de erro: "        + ' [' + cValToChar(aErro[MODEL_MSGERR_IDFIELDERR]) + '], '
+    cMessage += "Id do erro: "                 + ' [' + cValToChar(aErro[MODEL_MSGERR_ID]) + '], '
+    cMessage += "Mensagem do erro: "           + ' [' + cValToChar(aErro[MODEL_MSGERR_MESSAGE]) + '], '
+    cMessage += "Mensagem da solu��o: "        + ' [' + cValToChar(aErro[MODEL_MSGERR_SOLUCTION]) + '], '
+    cMessage += "Valor atribu�do: "            + ' [' + cValToChar(aErro[MODEL_MSGERR_VALUE]) + '], '
+    cMessage += "Valor anterior: "             + ' [' + cValToChar(aErro[MODEL_MSGERR_OLDVALUE]) + ']'
+
+    //Mostra mensagem de erro
+    ConOut("Erro: " + cMessage)
+Else
+    ConOut("Produto incluido!")
+EndIf
+
+//Desativa o modelo de dados
+oModel:DeActivate()
+
+Return
