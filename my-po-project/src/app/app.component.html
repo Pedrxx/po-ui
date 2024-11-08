@@ -1,11 +1,15 @@
 <div class="po-wrapper">
-  <po-toolbar p-title="SIGAPCP"></po-toolbar>
+  <po-toolbar p-title="Cadastros"></po-toolbar>
 
-  <po-menu [p-menus]="menus"></po-menu>
+  <po-menu 
+    [p-collapsed]="false"
+    [p-filter]="true"
+    [p-menus]="menus"
+  >
 
-  <po-page-default p-title="Ordens de Produção">
-    
-    <app-pessoas-table></app-pessoas-table>
+  </po-menu>
 
+  <po-page-default p-title="Usuários">
+    <router-outlet></router-outlet>
   </po-page-default>
 </div>

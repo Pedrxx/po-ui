@@ -3,6 +3,8 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { PoMenuModule, PoPageModule, PoToolbarModule } from '@po-ui/ng-components';
 
+import { ProtheusLibCoreModule } from '@totvs/protheus-lib-core';
+
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
@@ -12,7 +14,8 @@ describe('AppComponent', () => {
         PoMenuModule,
         PoPageModule,
         PoToolbarModule,
-        RouterTestingModule
+        RouterTestingModule,
+        ProtheusLibCoreModule
       ],
       declarations: [
         AppComponent
